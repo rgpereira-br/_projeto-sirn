@@ -1,11 +1,30 @@
+# ----------------------
+# IMPORTANDO BIBLIOTECAS
+# ----------------------
+
 import pandas as pd
 import streamlit as st
 import re
 
+# -----------------------------------
+# CONFIGURAÇÕES INICIAIS DO STREAMLIT
+# -----------------------------------
+
+st.set_page_config(
+    page_title="Análise de Despesas", 
+    layout="wide"
+)
+
+# -------------------------
+# LENDO ARQUIVO DE DESPESAS
+# -------------------------
+
 file_path = r"C:\Users\rgper\OneDrive\Documents\Tech\_projeto-sirn\2025090512571673344arquivo.txt"
 #df = pd.read_csv(file_path)
 
-###################################
+# ----------------
+# PREPARANDO DADOS
+# ----------------
 
 # Lê todas as linhas não vazias
 with open(file_path, 'r', encoding='utf-8') as f:
@@ -62,7 +81,22 @@ df = pd.DataFrame(data, columns=colunas)
 for col in colunas[5:]:
     df[col] = pd.to_numeric(df[col], errors='coerce')
 
-###################################
+# -------------------
+# CONSTRUINDO VISUAIS
+# -------------------
 
 df.set_index("Especificação do Elemento", inplace=True)
-st.line_chart(df[df["Realizada-Total"] > 0]["Realizada-Total"])
+
+elemento = df["Descrição Pai"].value_counts().index
+elemento_filtro = st.sidebar.selectbox("Selecione o Elemento Pai:", elemento)
+df_filtred = df[df["Descrição Pai"] == elemento_filtro]
+
+fonte_rec = df["Fonte de Rec"].value_counts().index
+fonte_rec_filtro = st.sidebar.selectbox("Selecione a Fonte de Rec:", fonte_rec)
+df_filtred2 = df_filtred[df_filtred["Fonte de Rec"] == fonte_rec_filtro]
+
+st.write(elemento_filtro)
+#st.bar_chart(df_filtred["Realizada-Total"])
+st.bar_chart(df_filtred2[df_filtred2["Realizada-Total"] > 0]["Realizada-Total"])
+
+df
